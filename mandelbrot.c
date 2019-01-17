@@ -85,3 +85,24 @@ struct Complex_n_bin *set_iterate(struct Complex_n *a, int iterations, struct Co
 	free(bin->product);
 	return bin;
 }
+
+//Takes in double between zero and one
+uint32_t color_calc(double val)
+{
+	if((val < 0.0) | (val > 1.0)){
+		printf("Error in color_calc! Val not normalized!");
+		return 1;
+	}
+	uint32_t red   = 0x00000000;
+	uint32_t green = 0x00000000;
+	uint32_t blue  = 0x00000000;
+	uint32_t alpha = 0x00000000;
+
+	red   = ((int)l_map(val, 0, 1, 0, 0xff * 5)) << (6 * 4);//= (/*(int)l_map(val, 0, 1, 0, 255)*/0xff) << 6; //Starts as 0x000000FF 
+	green = ((int)l_map(val, 0, 1, 0, 0xff * 5)) << (4 * 4);//Multiply by 4 to shift by half-bytes instead of bits
+	blue  = ((int)l_map(val, 0, 1, 0, 0xff * 5)) << (2 * 4);
+	alpha = 0xFF;
+	//printf("%#8x\n", red);
+	//printf("%#8x\n", (red + green + blue + alpha));
+	return (red + green + blue + alpha);
+}

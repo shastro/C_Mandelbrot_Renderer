@@ -29,3 +29,5 @@ double complex_abs(struct Complex_n *a);
 struct Complex_n_bin *set_iterate(struct Complex_n *a, int iterations, struct Complex_n_bin *bin);
 void bin_allocate(struct Complex_n_bin *bin);
 void bin_free(struct Complex_n_bin *bin);
+
+uint32_t color_calc(double val);

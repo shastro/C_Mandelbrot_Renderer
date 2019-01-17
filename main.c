@@ -63,15 +63,15 @@ int main(int argc, char *args[]){
 	//Update Mandelbrot
 	clock_t start, end;
 	start = clock();
-	uint32_t color = 0xFFFFFFFF;
+	uint32_t color = 0;
 	double normalized_color = 255;
 	for (int x = 0; x < SCREEN_WIDTH; x++){
 
 		for(int y = 0; y < SCREEN_HEIGHT; y++){
 
 			// Maps the pixel range to a much smaller range for viewing of the set, linear scaling of coordinate space
-			complex_array[y * SCREEN_WIDTH + x].rc = l_map(x, 0.0f, SCREEN_WIDTH, -2 + xoff, 2 + xoff) * zoomfac;
-			complex_array[y * SCREEN_WIDTH + x].ic = l_map(y, 0.0f, SCREEN_HEIGHT, -2 + yoff, 2 + yoff) * zoomfac;
+			complex_array[y * SCREEN_WIDTH + x].rc = l_map(x, 0.0f, SCREEN_WIDTH, -1 + xoff, 1 + xoff) * zoomfac;
+			complex_array[y * SCREEN_WIDTH + x].ic = l_map(y, 0.0f, SCREEN_HEIGHT, -1 + yoff, 1 + yoff) * zoomfac;
 			
 			//Calculates fractal using set_iterate, saves in an extra variable so it can be transferred to the bin_array
 			bin_cpy = set_iterate(&complex_array[y * SCREEN_WIDTH + x], num_iterations, &complex_bin_array[y * SCREEN_WIDTH + x]);
@@ -79,14 +79,23 @@ int main(int argc, char *args[]){
 
 			//Set Pixel Color According to index that the complex number landed on in the loop 
 			normalized_color = l_map(complex_bin_array[y * SCREEN_WIDTH + x].i, 0, num_iterations, 0, 1);
-			pixel_buffer[(y * SCREEN_WIDTH) + x] = l_map(normalized_color, 0, 1, 0, 0xFF0000FF);
+			//Insert New Func Here
+			color = color_calc(normalized_color);
+			//color = 0xFFFFFFFF;
+
+			//pixel_buffer[(y * SCREEN_WIDTH) + x] = l_map(normalized_color, 0, 1, 0, 0xFF0000FF);
+
+			//Assign Color
+			pixel_buffer[(y * SCREEN_WIDTH) + x] = color;
+
+			//printf("%#8x\n", pixel_buffer[y * SCREEN_WIDTH + x]);
+
 			//Has the effect of making the central shapes of the set black in color
 			if(complex_bin_array[y * SCREEN_WIDTH + x].in_set == 1){
 				pixel_buffer[y * SCREEN_WIDTH + x] = 0;
 			}
 			
-			pixel_buffer[(SCREEN_WIDTH * SCREEN_HEIGHT)/2 + SCREEN_WIDTH/2] = color;
-
+			pixel_buffer[(SCREEN_WIDTH * SCREEN_HEIGHT)/2 + SCREEN_WIDTH/2] = 0xFFFFFFFF;
 
 		}
 
