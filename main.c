@@ -70,8 +70,8 @@ int main(int argc, char *args[]){
 		for(int y = 0; y < SCREEN_HEIGHT; y++){
 
 			// Maps the pixel range to a much smaller range for viewing of the set, linear scaling of coordinate space
-			complex_array[y * SCREEN_WIDTH + x].rc = l_map(x, 0.0f, SCREEN_WIDTH, -1 + xoff, 1 + xoff) * zoomfac;
-			complex_array[y * SCREEN_WIDTH + x].ic = l_map(y, 0.0f, SCREEN_HEIGHT, -1 + yoff, 1 + yoff) * zoomfac;
+			complex_array[y * SCREEN_WIDTH + x].rc = l_map(x, 0.0f, SCREEN_WIDTH, -1 , 1 ) * zoomfac + xoff;
+			complex_array[y * SCREEN_WIDTH + x].ic = l_map(y, 0.0f, SCREEN_HEIGHT, -1 , 1 ) * zoomfac + yoff;
 			
 			//Calculates fractal using set_iterate, saves in an extra variable so it can be transferred to the bin_array
 			bin_cpy = set_iterate(&complex_array[y * SCREEN_WIDTH + x], num_iterations, &complex_bin_array[y * SCREEN_WIDTH + x]);
