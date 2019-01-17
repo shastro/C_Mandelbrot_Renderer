@@ -42,14 +42,14 @@ struct Complex_n *complex_add(struct Complex_n *a, struct Complex_n *b, struct C
 
 double complex_abs(struct Complex_n *a)
 {
+	//return pow((a->rc)*(a->rc) + (a->ic)*(a->ic), 0.5); //Much Slower
 	return sqrt((a->rc)*(a->rc) + (a->ic)*(a->ic));
 }
 
 void bin_allocate(struct Complex_n_bin *bin)
 {
 	bin->sum = (struct Complex_n *)malloc(sizeof(struct Complex_n*));
-	bin->product = (struct Complex_n *)malloc(sizeof(struct Complex_n*));
-	//bin->z = (struct Complex_n *)malloc(sizeof(struct Complex_n*));	
+	bin->product = (struct Complex_n *)malloc(sizeof(struct Complex_n*));	
 }
 
 void bin_free(struct Complex_n_bin *bin)
@@ -70,7 +70,7 @@ struct Complex_n_bin *set_iterate(struct Complex_n *a, int iterations, struct Co
 	complex_setval(bin->product, 0, 0); 
 	for(i; i < iterations; i++){
 		z = complex_add(complex_square(z, bin), a, bin);
-		if(complex_abs(z) > 2){
+		if((z->rc * z->rc) + (z->ic * z->ic) > 4){
 			bin->in_set = 0;
 			bin->i = i;
 			break;
