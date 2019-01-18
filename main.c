@@ -1,8 +1,8 @@
 #include "sdl.h"
 #include "mandelbrot.h"
 #include <time.h>
-#define SCREEN_WIDTH 500
-#define SCREEN_HEIGHT 500
+#define SCREEN_WIDTH 1000
+#define SCREEN_HEIGHT 1000
 
 int main(int argc, char *args[]){
 
@@ -107,6 +107,10 @@ int main(int argc, char *args[]){
 			case SDL_MOUSEBUTTONDOWN:
 				switch(event.button.button){
 					case SDL_BUTTON_LEFT:
+						man_i->xoff = l_map(event.button.x, 0.0f, SCREEN_WIDTH, -1 * man_i -> zoomfac + man_i->xoff, 1 * man_i -> zoomfac + man_i->xoff);
+						man_i->yoff = l_map(event.button.y, 0.0f, SCREEN_HEIGHT,-1 * man_i -> zoomfac + man_i->yoff, 1 * man_i -> zoomfac + man_i->yoff);
+						mandel_update(man_i, man_d);
+						mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 						break;
 				}
 				break;
@@ -115,6 +119,36 @@ int main(int argc, char *args[]){
 			case SDL_KEYUP:
 				if (event.key.keysym.sym == SDLK_ESCAPE){
 					ended = 1;
+				}
+				if(event.key.keysym.sym == SDLK_1){
+					color_i->red_bias += 1;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_2){
+					color_i->green_bias += 1;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_3){
+					color_i->blue_bias += 1;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_q){
+					color_i->red_bias -= 1;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_w){
+					color_i->green_bias -= 1;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_e){
+					color_i->blue_bias -= 1;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_RETURN){
+					man_i->zoomfac *= 0.1;
+					mandel_update(man_i, man_d);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+
 				}
 				break;
 			case SDL_QUIT:
@@ -127,9 +161,13 @@ int main(int argc, char *args[]){
 	}
 
 	/*Cleanup */
-	//free(man_d->complex_bin_array);
-	//free(man_d->complex_array);
-	//free(pixel_buffer);
+
+	free(man_d->complex_bin_array);
+	free(man_d->complex_array);
+	free(man_d);
+	free(man_i);
+	free(color_i);
+	free(pixel_buffer);
 	if(texture)
 	SDL_DestroyTexture(texture);
 	if(renderer)
