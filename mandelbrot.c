@@ -87,8 +87,8 @@ struct Complex_n_bin *set_iterate(struct Complex_n *a, int iterations, struct Co
 		}
 	}
 
-	//free(z);
-	//free(bin->product);
+	free(z);
+	free(bin->product);
 	return bin;
 }
 
@@ -112,12 +112,6 @@ void mandel_update(struct Mandel_Input *man_i, struct Mandel_Data *man_d){
 			// Maps the pixel range to a much smaller range for viewing of the set, linear scaling of coordinate space
 			((man_d->complex_array)[cindex(x,y, man_i->width)]).rc = l_map(x, 0.0f, man_i->width , -1 , 1 ) * man_i->zoomfac + man_i->xoff;
 			((man_d->complex_array)[cindex(x,y, man_i->width)]).ic = l_map(y, 0.0f, man_i->height, -1 , 1 ) * man_i->zoomfac + man_i->yoff;
-			//printf("RC:%lf\n\n", ((man_d->complex_array)[cindex(x,y, man_i->width)]).rc);
-			//printf("IC:%lf\n\n", ((man_d->complex_array)[cindex(x,y, man_i->width)]).ic);
-			//printf("%lf\n", man_i->zoomfac);
-			//
-			//bin_cpy = set_iterate(&complex_array[y * SCREEN_WIDTH + x], num_iterations, &complex_bin_array[y * SCREEN_WIDTH + x]);
-			//complex_bin_array[y * SCREEN_WIDTH + x] = *bin_cpy;
 
 			//Calculates fractal using set_iterate, saves in an extra variable so it can be transferred to the bin_array
 			bin_cpy = set_iterate(&((man_d->complex_array)[cindex(x,y, man_i->width)]), man_i->num_iterations, &((man_d->complex_bin_array)[cindex(x,y, man_i->width)]));
@@ -141,9 +135,6 @@ void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array
 		
 		//Assign pixel color
 		color = color_calc(normalized_color, color_i->red_bias, color_i->green_bias, color_i->blue_bias);
-		//color = 0xFFFFFFFF;
-
-		//pixel_buffer[(y * man_i->width) + x] = l_map(normalized_color, 0, 1, 0, 0xFF0000FF);
 
 		//Assign Color
 		pixel_buffer[(y * man_i->width) + x] = color;
@@ -155,7 +146,7 @@ void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array
 			pixel_buffer[(y * man_i->width) + x] = 0;
 		}
 		
-		pixel_buffer[(man_i->width * man_i->height)/2 + man_i->width/2] = 0xFFFFFFFF;
+		//pixel_buffer[(man_i->width * man_i->height)/2 + man_i->width/2] = 0xFFFFFFFF;
 
 		}
 	}
@@ -189,4 +180,28 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias)
 	//printf("%#8x\n", red);
 	//printf("%#8x\n", (red + green + blue + alpha));
 	return (red + green + blue + alpha);
+}
+
+//Prints Color_Info Struct
+void print_Color_Info(struct Color_Info *color_i)
+{
+	printf("Red_Bias: %d\n", color_i->red_bias);
+	printf("Green_Bias: %d\n", color_i->green_bias);
+	printf("Blue_Bias: %d\n", color_i->blue_bias);
+}
+
+//Prints Mandel_Input Struct
+void print_Mandel_Input(struct Mandel_Input *man_i)
+{
+	printf("iterations: %d\n", man_i->num_iterations);
+	printf("xoff: %lf\n", man_i->xoff);
+	printf("yoff: %lf\n", man_i->yoff);
+	printf("zoomfac: %lf\n", man_i->zoomfac);
+}
+
+//Prints Executable command to console
+void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i)
+{
+	printf("\"./mandl %lf %d %lf %lf %d %d %d\"\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
+										color_i->red_bias, color_i->green_bias, color_i->blue_bias);
 }

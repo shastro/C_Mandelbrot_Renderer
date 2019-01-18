@@ -144,8 +144,14 @@ int main(int argc, char *args[]){
 					color_i->blue_bias -= 1;
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
-				if(event.key.keysym.sym == SDLK_RETURN){
+				if(event.key.keysym.sym == SDLK_EQUALS){
 					man_i->zoomfac *= 0.1;
+					mandel_update(man_i, man_d);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+
+				}
+				if(event.key.keysym.sym == SDLK_MINUS){
+					man_i->zoomfac *= 10;
 					mandel_update(man_i, man_d);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
@@ -158,15 +164,20 @@ int main(int argc, char *args[]){
 
 				}
 				if(event.key.keysym.sym == SDLK_UP){
-					man_i->num_iterations += 50;
+					man_i->num_iterations += 100;
 					mandel_update(man_i, man_d);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_DOWN){
-					if(man_i->num_iterations > 50)
-						man_i->num_iterations -= 50;
+					if(man_i->num_iterations > 100)
+						man_i->num_iterations -= 100;
 					mandel_update(man_i, man_d);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_p){
+					print_Color_Info(color_i);
+					print_Mandel_Input(man_i);
+					print_cmd(man_i, color_i);
 				}
 				break;
 			case SDL_QUIT:
