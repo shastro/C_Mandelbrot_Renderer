@@ -3,7 +3,7 @@ CFLAGS=-W -Wall -g
 SDL_CFLAGS := $(shell sdl2-config --cflags) 
 SDL_LDFLAGS := $(shell sdl2-config --libs) -lm 
 
-all: main sdl_handler.o mandelbrot.o
+all: main mandelbrot.o
 
 #sdl_handler.o: sdl_handler.c sdl.h
 #	$(CC) $(CFLAGS) -c sdl_handler.c
