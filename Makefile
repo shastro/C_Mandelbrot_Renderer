@@ -12,7 +12,7 @@ mandelbrot.o: mandelbrot.c
 	$(CC) $(CFLAGS) -c mandelbrot.c -lm
 
 main: mandelbrot.o
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) main.c sdl_handler.o mandelbrot.o -o mandl $(SDL_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) main.c mandelbrot.o -o mandl $(SDL_LDFLAGS)
 
 clean:
-	rm mandl sdl_handler.o mandelbrot.o
+	rm mandl mandelbrot.o

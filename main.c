@@ -150,6 +150,24 @@ int main(int argc, char *args[]){
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}
+				if(event.key.keysym.sym == SDLK_r){
+					color_i->red_bias = 5;
+					color_i->green_bias = 5;
+					color_i->blue_bias = 5;
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+
+				}
+				if(event.key.keysym.sym == SDLK_UP){
+					man_i->num_iterations += 50;
+					mandel_update(man_i, man_d);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
+				if(event.key.keysym.sym == SDLK_DOWN){
+					if(man_i->num_iterations > 50)
+						man_i->num_iterations -= 50;
+					mandel_update(man_i, man_d);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+				}
 				break;
 			case SDL_QUIT:
 				ended = 1;
