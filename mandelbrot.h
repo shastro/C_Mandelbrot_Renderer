@@ -19,6 +19,33 @@ struct Complex_n_bin{
 	int i;
 };
 
+//Struct to hold all mandelbrot data for entire set
+struct Mandel_Data{
+
+	struct Complex_n_bin *complex_bin_array;
+	struct Complex_n *complex_array;
+
+};
+
+//Holds input data for mandel_update()
+struct Mandel_Input{
+	int width;
+	int height;
+	int num_iterations;
+	double xoff;
+	double yoff;
+	double zoomfac;
+
+};
+
+struct Color_Info{
+
+	int red_bias;
+	int green_bias;
+	int blue_bias;
+
+};
+
 
 //Function Declarations
 double l_map(double x, double input_start, double input_end, double output_start, double output_end);
@@ -29,5 +56,8 @@ double complex_abs(struct Complex_n *a);
 struct Complex_n_bin *set_iterate(struct Complex_n *a, int iterations, struct Complex_n_bin *bin);
 void bin_allocate(struct Complex_n_bin *bin);
 void bin_free(struct Complex_n_bin *bin);
+int cindex(int x, int y, int width);
 
-uint32_t color_calc(double val);
+void mandel_update(struct Mandel_Input *man_i, struct Mandel_Data *man_d);
+void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array, struct Color_Info *color_i, struct Mandel_Input *man_i);
+uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias);

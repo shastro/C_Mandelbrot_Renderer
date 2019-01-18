@@ -1,8 +1,8 @@
 #include "sdl.h"
 #include "mandelbrot.h"
 #include <time.h>
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 1000
+#define SCREEN_WIDTH 500
+#define SCREEN_HEIGHT 500
 
 int main(int argc, char *args[]){
 
@@ -25,31 +25,25 @@ int main(int argc, char *args[]){
 	SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH,SCREEN_HEIGHT);
 	
 	//Pixel Buffer Declaration
-	uint32_t pixel_buffer[SCREEN_HEIGHT*SCREEN_WIDTH];
+	uint32_t *pixel_buffer = malloc(sizeof(uint32_t) * SCREEN_HEIGHT * SCREEN_WIDTH);
 
 	//Initializes Pixel Values to White
 	memset(pixel_buffer, 0xFF, SCREEN_WIDTH * SCREEN_HEIGHT *sizeof(uint32_t));
 
 	//Complex Number and Data array declarations and heap allocation
-	struct Complex_n *complex_array = (struct Complex_n*)malloc(sizeof(struct Complex_n) * SCREEN_WIDTH * SCREEN_HEIGHT);
-	struct Complex_n_bin *complex_bin_array = (struct Complex_n_bin*)malloc(sizeof(struct Complex_n_bin) * SCREEN_WIDTH * SCREEN_HEIGHT);
-
-	//Array Data Initialization
-	for(int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++){
-		complex_setval(&complex_array[i], 0, 0);
-		bin_allocate(complex_bin_array + i);
-		complex_bin_array[i].in_set = 0;
-		complex_bin_array[i].i = 0;
-	}
+	//struct Complex_n *complex_array = (struct Complex_n*)malloc(sizeof(struct Complex_n) * SCREEN_WIDTH * SCREEN_HEIGHT);
+	//struct Complex_n_bin *complex_bin_array = (struct Complex_n_bin*)malloc(sizeof(struct Complex_n_bin) * SCREEN_WIDTH * SCREEN_HEIGHT);
 
 	//Default Arg Values
 	double zoomfac = 2;
 	double xoff = 0; // X offset
 	double yoff = 0; // Y offset
 	int num_iterations = 500;
-	//struct Complex_n_bin *bin_cpy = malloc(sizeof(struct Complex_n_bin*)); //Allocate memory to store a copy of the current data
-	struct Complex_n_bin *bin_cpy = NULL;
+	int red_bias = 5;
+	int green_bias = 5;
+	int blue_bias = 5;
 	//Commandline args
+	//This implementation is garbage and will be updated eventually
 	if(args[1])
 		sscanf(args[1],"%lf", &zoomfac);
 	if(args[2])
@@ -58,48 +52,40 @@ int main(int argc, char *args[]){
 		sscanf(args[3],"%lf", &xoff);
 	if(args[4])
 		sscanf(args[4], "%lf", &yoff);
+	if(args[5])
+		sscanf(args[5], "%d", &red_bias);
+	if(args[6])
+		sscanf(args[6], "%d", &green_bias);
+	if(args[7])
+		sscanf(args[7], "%d", &blue_bias);
 
-	//Loop that colorizes and Calculates values for each pixel based on if it is included withing hte mandlebrot set
-	//Update Mandelbrot
+	struct Mandel_Data *man_d = malloc(sizeof(struct Mandel_Data));
+		man_d -> complex_bin_array = (struct Complex_n_bin*)malloc(sizeof(struct Complex_n_bin) * SCREEN_WIDTH * SCREEN_HEIGHT);
+		man_d -> complex_array = (struct Complex_n*)malloc(sizeof(struct Complex_n) * SCREEN_WIDTH * SCREEN_HEIGHT);
+
+	
+	struct Mandel_Input *man_i = malloc(sizeof(struct Mandel_Input));
+		man_i->width  = SCREEN_WIDTH;
+		man_i->height = SCREEN_HEIGHT;
+		man_i->num_iterations = num_iterations;
+		man_i->xoff = xoff;
+		man_i->yoff = yoff;
+		man_i->zoomfac = zoomfac;
+
+	struct Color_Info *color_i = malloc(sizeof(struct Color_Info));
+		color_i->red_bias   = red_bias;
+		color_i->green_bias = green_bias;
+		color_i->blue_bias  = blue_bias;
+
+
 	clock_t start, end;
 	start = clock();
-	uint32_t color = 0;
-	double normalized_color = 255;
-	for (int x = 0; x < SCREEN_WIDTH; x++){
+	//Update Mandelbrot and store arraydata in Mandel_Data
+	mandel_update(man_i, man_d);
+	printf("Update Success\n");
+	mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
-		for(int y = 0; y < SCREEN_HEIGHT; y++){
-
-			// Maps the pixel range to a much smaller range for viewing of the set, linear scaling of coordinate space
-			complex_array[y * SCREEN_WIDTH + x].rc = l_map(x, 0.0f, SCREEN_WIDTH, -1 , 1 ) * zoomfac + xoff;
-			complex_array[y * SCREEN_WIDTH + x].ic = l_map(y, 0.0f, SCREEN_HEIGHT, -1 , 1 ) * zoomfac + yoff;
-			
-			//Calculates fractal using set_iterate, saves in an extra variable so it can be transferred to the bin_array
-			bin_cpy = set_iterate(&complex_array[y * SCREEN_WIDTH + x], num_iterations, &complex_bin_array[y * SCREEN_WIDTH + x]);
-			complex_bin_array[y * SCREEN_WIDTH + x] = *bin_cpy;
-
-			//Set Pixel Color According to index that the complex number landed on in the loop 
-			normalized_color = l_map(complex_bin_array[y * SCREEN_WIDTH + x].i, 0, num_iterations, 0, 1);
-			//Insert New Func Here
-			color = color_calc(normalized_color);
-			//color = 0xFFFFFFFF;
-
-			//pixel_buffer[(y * SCREEN_WIDTH) + x] = l_map(normalized_color, 0, 1, 0, 0xFF0000FF);
-
-			//Assign Color
-			pixel_buffer[(y * SCREEN_WIDTH) + x] = color;
-
-			//printf("%#8x\n", pixel_buffer[y * SCREEN_WIDTH + x]);
-
-			//Has the effect of making the central shapes of the set black in color
-			if(complex_bin_array[y * SCREEN_WIDTH + x].in_set == 1){
-				pixel_buffer[y * SCREEN_WIDTH + x] = 0;
-			}
-			
-			pixel_buffer[(SCREEN_WIDTH * SCREEN_HEIGHT)/2 + SCREEN_WIDTH/2] = 0xFFFFFFFF;
-
-		}
-
-	}
+	printf("%p", pixel_buffer);
 	end = clock();
 	double time_taken = ((double) (end - start));
 	//free(bin_cpy->sum);
@@ -108,9 +94,9 @@ int main(int argc, char *args[]){
 	printf("Set Generated!\n");
 
 	//*Main Loop
-	int ended = 1;
+	int ended = 0;
 	SDL_Event event; //Declare Event
-	while(ended){
+	while(!ended){
 
 		SDL_UpdateTexture(texture, NULL, pixel_buffer, SCREEN_WIDTH*sizeof(uint32_t));
 		//Poll for SDL Events
@@ -118,15 +104,21 @@ int main(int argc, char *args[]){
 		{
 			switch (event.type) 
 			{
+			case SDL_MOUSEBUTTONDOWN:
+				switch(event.button.button){
+					case SDL_BUTTON_LEFT:
+						break;
+				}
+				break;
 			case SDL_KEYDOWN:
 				break;
 			case SDL_KEYUP:
 				if (event.key.keysym.sym == SDLK_ESCAPE){
-					ended = 0;
+					ended = 1;
 				}
 				break;
 			case SDL_QUIT:
-				ended = 0;
+				ended = 1;
 			}
 		}
 		SDL_RenderClear(renderer); //Clears image
@@ -135,16 +127,14 @@ int main(int argc, char *args[]){
 	}
 
 	/*Cleanup */
-	//bin_free(bin_cpy);
-	for(int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++){
-		//free(&complex_bin_array[i]);
-		//free(complex_bin_array[i].product);
-		//free(complex_bin_array[i].z); //Doesn't work because the address of z is identical to the sum or the product
-	}
-	free(complex_bin_array);
-	free(complex_array);
+	//free(man_d->complex_bin_array);
+	//free(man_d->complex_array);
+	//free(pixel_buffer);
+	if(texture)
 	SDL_DestroyTexture(texture);
+	if(renderer)
 	SDL_DestroyRenderer(renderer);
+	if(window)
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 

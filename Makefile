@@ -11,7 +11,7 @@ all: main sdl_handler.o mandelbrot.o
 mandelbrot.o: mandelbrot.c
 	$(CC) $(CFLAGS) -c mandelbrot.c -lm
 
-main: sdl_handler.o mandelbrot.o
+main: mandelbrot.o
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) main.c sdl_handler.o mandelbrot.o -o mandl $(SDL_LDFLAGS)
 
 clean:

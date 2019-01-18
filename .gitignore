@@ -1,3 +1,4 @@
 mandl
 sdl_handler.o
 mandelbrot.o
+maincpy.c
