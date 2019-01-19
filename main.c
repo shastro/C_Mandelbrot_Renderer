@@ -76,6 +76,8 @@ int main(int argc, char *args[]){
 		sscanf(args[6], "%d", &green_bias);
 	if(args[7])
 		sscanf(args[7], "%d", &blue_bias);
+	if(args[8])
+		sscanf(args[8], "%d", &color_coef);
 
 	//Initializations and Allocations
 	struct Mandel_Data *man_d = malloc(sizeof(struct Mandel_Data));

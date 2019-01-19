@@ -151,8 +151,8 @@ void *threaded_mandel_update(void *th_args){
 		//printf("%d:%d", (man_d->complex_array + i)->rc ,(man_d->complex_array + i)->ic);
 	}
 	 //printf("Thread%d --- ALIVE!3\n", thread_id);
-	 printf("Thread%d ---Start:%d\n", thread_id, start_index);
-	 printf("Thread%d ---End:%d\n", thread_id, end_index);
+	 //printf("Thread%d ---Start:%d\n", thread_id, start_index);
+	 //printf("Thread%d ---End:%d\n", thread_id, end_index);
 	struct Complex_n_bin *bin_cpy = NULL;
 
 	for(int i = start_index; i <= end_index; i++){
@@ -268,6 +268,6 @@ void print_Mandel_Input(struct Mandel_Input *man_i)
 //Prints Executable command to console
 void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i)
 {
-	printf("\"./mandl %lf %d %lf %lf %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
-										color_i->red_bias, color_i->green_bias, color_i->blue_bias);
+	printf("\"./mandl %lf %d %lf %lf %d %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
+										color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
 }
