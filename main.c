@@ -4,6 +4,22 @@
 #define SCREEN_HEIGHT 1000
 #define NANO_PER_SEC 1000000000.0
 
+/* MandelBrot Set Plotter, Skyler Hughes
+
+	@bug
+		Strange error, caused pixelated rendering and a program failure
+		Possibly related to fast inputs and multithreading
+
+	@todo
+		Implement even better color control
+		Implement custom movement optimzation algorithm
+		Better command line arguments
+		Check Memeory leaks and add more free()s
+		Document Code
+		Organize Code
+
+*/
+
 
 int main(int argc, char *args[]){
 
@@ -43,6 +59,7 @@ int main(int argc, char *args[]){
 	int red_bias = 25;
 	int green_bias = 25;
 	int blue_bias = 25;
+	int color_coef = 50;
 	//Commandline args
 	//This implementation is garbage and will be updated eventually
 	if(args[1])
@@ -78,6 +95,7 @@ int main(int argc, char *args[]){
 		color_i->red_bias   = red_bias;
 		color_i->green_bias = green_bias;
 		color_i->blue_bias  = blue_bias;
+		color_i->color_coef = color_coef;
 
 	//Multithreading
 	pthread_t  threads[N_THREADS];
@@ -148,36 +166,55 @@ int main(int argc, char *args[]){
 				if (event.key.keysym.sym == SDLK_ESCAPE){
 					ended = 1;
 				}
+
 				if(event.key.keysym.sym == SDLK_1){
 					color_i->red_bias += 1;
 					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
+
 				if(event.key.keysym.sym == SDLK_2){
 					color_i->green_bias += 1;
 					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
+
 				if(event.key.keysym.sym == SDLK_3){
 					color_i->blue_bias += 1;
 					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
+
 				if(event.key.keysym.sym == SDLK_q){
 					color_i->red_bias -= 1;
 					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
+
 				if(event.key.keysym.sym == SDLK_w){
 					color_i->green_bias -= 1;
 					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
+
 				if(event.key.keysym.sym == SDLK_e){
 					color_i->blue_bias -= 1;
 					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
+
+				if(event.key.keysym.sym == SDLK_4){
+					color_i->color_coef += 5;
+					print_Color_Info(color_i);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);					
+				}
+
+				if(event.key.keysym.sym == SDLK_r){
+					color_i->color_coef -= 5;
+					print_Color_Info(color_i);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);					
+				}
+
 				if(event.key.keysym.sym == SDLK_EQUALS){
 					man_i->zoomfac *= 0.1;
 					//mandel_update(man_i, man_d);
@@ -187,37 +224,60 @@ int main(int argc, char *args[]){
 				}
 				if(event.key.keysym.sym == SDLK_MINUS){
 					man_i->zoomfac *= 10;
-					mandel_update(man_i, man_d);
+					//mandel_update(man_i, man_d);
+					update_mandel_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}
-				if(event.key.keysym.sym == SDLK_r){
+
+				if(event.key.keysym.sym == SDLK_t){
 					color_i->red_bias = 25;
 					color_i->green_bias = 25;
 					color_i->blue_bias = 25;
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}
+
 				if(event.key.keysym.sym == SDLK_UP){
 					man_i->num_iterations += 50;
 					print_Mandel_Input(man_i);
 					
 				}
+
 				if(event.key.keysym.sym == SDLK_DOWN){
 					if(man_i->num_iterations > 50)
 						man_i->num_iterations -= 50;
 					print_Mandel_Input(man_i);
 				}
+
 				if(event.key.keysym.sym == SDLK_p){
 					print_Color_Info(color_i);
 					print_Mandel_Input(man_i);
 					print_cmd(man_i, color_i);
 				}
+
+				//Screenshot
+				if(event.key.keysym.sym == SDLK_s){
+					SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_PIXELFORMAT_RGBA8888);
+					SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_RGBA8888, surface->pixels, surface->pitch);
+					
+					clock_gettime(CLOCK_REALTIME, &end);
+					end_sec   = end.tv_sec + end.tv_nsec/NANO_PER_SEC;
+
+					char screenshot_name[256];
+					sprintf(screenshot_name, "%lf", end_sec);
+					strcat(screenshot_name, ".bmp");
+
+					SDL_SaveBMP(surface, screenshot_name);
+					SDL_FreeSurface(surface);
+					printf("Screenshot Saved! as %s", screenshot_name);
+				}
 				if(event.key.keysym.sym == SDLK_RETURN){
-					mandel_update(man_i, man_d);
+					update_mandel_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 					printf("Refreshed!\n");					
 				}
+
 				break;
 			case SDL_QUIT:
 				ended = 1;

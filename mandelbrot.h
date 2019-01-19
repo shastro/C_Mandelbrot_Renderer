@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
-#define N_THREADS 4
+#define N_THREADS 6
 struct Complex_n{
 
 	double rc; //Real Component
@@ -41,6 +41,7 @@ struct Mandel_Input{
 
 };
 
+//Holds information that must be passed to each thread
 struct Thread_Args{
 
 	struct Mandel_Input *man_i;
@@ -50,11 +51,13 @@ struct Thread_Args{
 	int thread_id;
 };
 
+//Color information for rendering
 struct Color_Info{
 
 	int red_bias;
 	int green_bias;
 	int blue_bias;
+	int color_coef;
 
 };
 
@@ -81,7 +84,7 @@ void mandel_update(struct Mandel_Input *man_i, struct Mandel_Data *man_d);
 void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array, struct Color_Info *color_i, struct Mandel_Input *man_i);
 
 //Working with Color
-uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias);
+uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias, int coef);
 
 //Prints
 void print_Color_Info(struct Color_Info *color_i);

@@ -199,7 +199,7 @@ void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array
 		normalized_color = l_map(complex_bin_array[y * man_i->width + x].i, 0, man_i->num_iterations, 0, 1);
 		
 		//Assign pixel color
-		color = color_calc(normalized_color, color_i->red_bias, color_i->green_bias, color_i->blue_bias);
+		color = color_calc(normalized_color, color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
 
 		//Assign Color
 		pixel_buffer[(y * man_i->width) + x] = color;
@@ -219,7 +219,7 @@ void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array
 
 
 //Takes in double between zero and one
-uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias)
+uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias, int coef)
 {
 	if((val < 0.0) | (val > 1.0)){
 		printf("Error in color_calc! Val not normalized!");
@@ -231,9 +231,9 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias)
 	uint32_t alpha = 0x00000000;
 
 
-	red   = ((int)l_map(val, 0, 1, 0, 50 * red_bias))   << (6 * 4);//Starts as 0x000000FF 
-	green = ((int)l_map(val, 0, 1, 0, 50 * green_bias)) << (4 * 4);//Multiply by 4 to shift by half-bytes instead of bits
-	blue  = ((int)l_map(val, 0, 1, 0, 50 * blue_bias))  << (2 * 4);
+	red   = ((int)l_map(val, 0, 1, 0, coef * red_bias))   << (6 * 4);//Starts as 0x000000FF 
+	green = ((int)l_map(val, 0, 1, 0, coef * green_bias)) << (4 * 4);//Multiply by 4 to shift by half-bytes instead of bits
+	blue  = ((int)l_map(val, 0, 1, 0, coef * blue_bias))  << (2 * 4);
 	alpha = 0xFF;
 
 	/*Experimental smooth interpolation 
@@ -253,6 +253,7 @@ void print_Color_Info(struct Color_Info *color_i)
 	printf("Red_Bias: %d\n", color_i->red_bias);
 	printf("Green_Bias: %d\n", color_i->green_bias);
 	printf("Blue_Bias: %d\n", color_i->blue_bias);
+	printf("Color Coefficient: %d\n", color_i->color_coef);
 }
 
 //Prints Mandel_Input Struct
