@@ -250,9 +250,9 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias, int
 //Prints Color_Info Struct
 void print_Color_Info(struct Color_Info *color_i)
 {
-	printf("Red_Bias: %d\n", color_i->red_bias);
+	printf("Red_Bias:   %d\n", color_i->red_bias);
 	printf("Green_Bias: %d\n", color_i->green_bias);
-	printf("Blue_Bias: %d\n", color_i->blue_bias);
+	printf("Blue_Bias:  %d\n", color_i->blue_bias);
 	printf("Color Coefficient: %d\n", color_i->color_coef);
 }
 
@@ -268,6 +268,6 @@ void print_Mandel_Input(struct Mandel_Input *man_i)
 //Prints Executable command to console
 void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i)
 {
-	printf("\"./mandl %lf %d %lf %lf %d %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
+	printf("\"./mandl %0.17g %d %lf %lf %d %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
 										color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
 }

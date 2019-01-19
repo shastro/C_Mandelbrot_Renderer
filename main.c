@@ -258,22 +258,71 @@ int main(int argc, char *args[]){
 					print_cmd(man_i, color_i);
 				}
 
-				//Screenshot
+				//Screenshot and metadata
 				if(event.key.keysym.sym == SDLK_s){
+
+					//Aquiring Pixel Data
 					SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_PIXELFORMAT_RGBA8888);
 					SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_RGBA8888, surface->pixels, surface->pitch);
 					
+					//Getting Number for Filenames
 					clock_gettime(CLOCK_REALTIME, &end);
-					end_sec   = end.tv_sec + end.tv_nsec/NANO_PER_SEC;
+					int ts = end.tv_sec + end.tv_nsec/NANO_PER_SEC;
+					ts %= 10000;
+
+				
+					char filepath[256];
+					char filepath_cpy[256];
+
+					sprintf(filepath, "./images/");
+					sprintf(filepath_cpy, "./images/");
 
 					char screenshot_name[256];
-					sprintf(screenshot_name, "%lf", end_sec);
+					sprintf(screenshot_name, "%d", ts);
 					strcat(screenshot_name, ".bmp");
+					strcat(filepath, screenshot_name);
 
-					SDL_SaveBMP(surface, screenshot_name);
+					char meta_name[256];
+					sprintf(meta_name, "%d", ts);
+					strcat(meta_name, ".met");
+					strcat(filepath_cpy, meta_name);
+
+					//Saving Image
+					SDL_SaveBMP(surface, filepath);
 					SDL_FreeSurface(surface);
-					printf("Screenshot Saved! as %s", screenshot_name);
+
+					//Write Metadata to .txt file
+					FILE *metadata;
+					metadata = fopen(filepath_cpy, "a");
+					fprintf(metadata, "Red_Bias:   %d\n", color_i->red_bias);
+					fprintf(metadata, "Green_Bias: %d\n", color_i->green_bias);
+					fprintf(metadata, "Blue_Bias:  %d\n", color_i->blue_bias);
+					fprintf(metadata, "Color Coefficient:   %d\n", color_i->color_coef); 
+					fprintf(metadata, "iterations: %d\n", man_i->num_iterations);
+					fprintf(metadata, "xoff: %lf\n", man_i->xoff);
+					fprintf(metadata, "yoff: %lf\n", man_i->yoff);
+					fprintf(metadata, "zoomfac: %lf\n", man_i->zoomfac);	
+					fprintf(metadata, "./mandl %0.17g %d %lf %lf %d %d %d %d\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff,
+											color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
+ 
+
+					printf("Screenshot Saved! as %s\n", screenshot_name);
+					printf("Metadata stored as %s\n", meta_name);
+
+					//Store command in command_repositiory
+					FILE *cool_commands;
+					cool_commands = fopen("cool_commands", "a");
+					if(cool_commands){
+
+						fprintf(cool_commands, "./mandl %0.17g %d %lf %lf %d %d %d %d\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff,
+								color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
+ 						
+ 						fclose(cool_commands);
+ 					}
+					fclose(metadata);
 				}
+
+
 				if(event.key.keysym.sym == SDLK_RETURN){
 					update_mandel_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
