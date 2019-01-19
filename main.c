@@ -4,6 +4,7 @@
 #define SCREEN_HEIGHT 1000
 #define NANO_PER_SEC 1000000000.0
 
+
 int main(int argc, char *args[]){
 
 	SDL_Window *window = NULL;
@@ -96,21 +97,9 @@ int main(int argc, char *args[]){
 	//Create Threads and Execute processes
 	
 	clock_gettime(CLOCK_REALTIME, &start);
-	mandel_update(man_i, man_d);
-	/*
-	for(int i=0; i< N_THREADS; i++){
-		(th_args_a[i]).thread_id = i;
-		printf("\n\nSpawning Thread%d\n\n", i);
-		pthread_create(&threads[i], NULL, threaded_mandel_update, (void*)&th_args_a[i]);
+	//mandel_update(man_i, man_d); //Single Thread
+	update_mandel_threads(th_args_a, threads); //Multi-Thread
 
-	}
-	//Wait for Threads to Complete
-	for(int i=0; i< N_THREADS; i++){
-		pthread_join(threads[i], NULL);
-		printf("Thread %d finished!\n\n", i);
-	}
-	*/
-	
 	clock_gettime(CLOCK_REALTIME, &end);
 
 	start_sec = start.tv_sec + start.tv_nsec/NANO_PER_SEC;
@@ -148,7 +137,7 @@ int main(int argc, char *args[]){
 					case SDL_BUTTON_LEFT:
 						man_i->xoff = l_map(event.button.x, 0.0f, SCREEN_WIDTH, -1 * man_i -> zoomfac + man_i->xoff, 1 * man_i -> zoomfac + man_i->xoff);
 						man_i->yoff = l_map(event.button.y, 0.0f, SCREEN_HEIGHT,-1 * man_i -> zoomfac + man_i->yoff, 1 * man_i -> zoomfac + man_i->yoff);
-						mandel_update(man_i, man_d);
+						update_mandel_threads(th_args_a, threads);
 						mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 						break;
 				}
@@ -191,7 +180,8 @@ int main(int argc, char *args[]){
 				}
 				if(event.key.keysym.sym == SDLK_EQUALS){
 					man_i->zoomfac *= 0.1;
-					mandel_update(man_i, man_d);
+					//mandel_update(man_i, man_d);
+					update_mandel_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}

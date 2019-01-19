@@ -172,6 +172,22 @@ void *threaded_mandel_update(void *th_args){
 	
 
 }
+
+void update_mandel_threads(struct Thread_Args *th_args_a, pthread_t *threads)
+{
+	for(int i=0; i< N_THREADS; i++){
+		(th_args_a[i]).thread_id = i;
+		printf("\n\nSpawning Thread%d\n\n", i);
+		pthread_create(&threads[i], NULL, threaded_mandel_update, (void*)&th_args_a[i]);
+
+	}
+	//Wait for Threads to Complete
+	for(int i=0; i< N_THREADS; i++){
+		pthread_join(threads[i], NULL);
+		printf("Thread %d finished!\n\n", i);
+	}
+}
+
 void mandel_draw(uint32_t *pixel_buffer, struct Complex_n_bin *complex_bin_array, struct Color_Info *color_i, struct Mandel_Input *man_i)
 {
 	double normalized_color = 0;

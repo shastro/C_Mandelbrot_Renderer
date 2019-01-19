@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
-#define N_THREADS 2
+#define N_THREADS 4
 struct Complex_n{
 
 	double rc; //Real Component
@@ -91,3 +91,4 @@ void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i);
 
 //Multi-Threaded
 void *threaded_mandel_update(void *th_args);
+void update_mandel_threads(struct Thread_Args *th_args_a, pthread_t *threads);
