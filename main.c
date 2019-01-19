@@ -1,8 +1,8 @@
 #include "sdl.h"
 #include "mandelbrot.h"
-#include <time.h>
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 1000
+#define NANO_PER_SEC 1000000000.0
 
 int main(int argc, char *args[]){
 
@@ -39,9 +39,9 @@ int main(int argc, char *args[]){
 	double xoff = 0; // X offset
 	double yoff = 0; // Y offset
 	int num_iterations = 500;
-	int red_bias = 5;
-	int green_bias = 5;
-	int blue_bias = 5;
+	int red_bias = 25;
+	int green_bias = 25;
+	int blue_bias = 25;
 	//Commandline args
 	//This implementation is garbage and will be updated eventually
 	if(args[1])
@@ -59,6 +59,7 @@ int main(int argc, char *args[]){
 	if(args[7])
 		sscanf(args[7], "%d", &blue_bias);
 
+	//Initializations and Allocations
 	struct Mandel_Data *man_d = malloc(sizeof(struct Mandel_Data));
 		man_d -> complex_bin_array = (struct Complex_n_bin*)malloc(sizeof(struct Complex_n_bin) * SCREEN_WIDTH * SCREEN_HEIGHT);
 		man_d -> complex_array = (struct Complex_n*)malloc(sizeof(struct Complex_n) * SCREEN_WIDTH * SCREEN_HEIGHT);
@@ -77,22 +78,60 @@ int main(int argc, char *args[]){
 		color_i->green_bias = green_bias;
 		color_i->blue_bias  = blue_bias;
 
+	//Multithreading
+	pthread_t  threads[N_THREADS];
+	struct Thread_Args *th_args_a = malloc(sizeof(struct Thread_Args) * N_THREADS);
+	for(int i = 0; i < N_THREADS; i++){
+		th_args_a[i].pixel_buffer = pixel_buffer;
+		th_args_a[i].len = SCREEN_WIDTH * SCREEN_HEIGHT;
+		th_args_a[i].man_i = man_i;
+		th_args_a[i].man_d = man_d;
+		th_args_a[i].thread_id = 0;
+	}
 
+	//*******************************************
+
+	struct timespec start, end;
+	double start_sec, end_sec;
+	//Create Threads and Execute processes
+	
+	clock_gettime(CLOCK_REALTIME, &start);
+	mandel_update(man_i, man_d);
+	/*
+	for(int i=0; i< N_THREADS; i++){
+		(th_args_a[i]).thread_id = i;
+		printf("\n\nSpawning Thread%d\n\n", i);
+		pthread_create(&threads[i], NULL, threaded_mandel_update, (void*)&th_args_a[i]);
+
+	}
+	//Wait for Threads to Complete
+	for(int i=0; i< N_THREADS; i++){
+		pthread_join(threads[i], NULL);
+		printf("Thread %d finished!\n\n", i);
+	}
+	*/
+	
+	clock_gettime(CLOCK_REALTIME, &end);
+
+	start_sec = start.tv_sec + start.tv_nsec/NANO_PER_SEC;
+	end_sec   = end.tv_sec + end.tv_nsec/NANO_PER_SEC;
+
+	double time_taken = end_sec - start_sec;
+
+	printf("Time Taken: %lf seconds\n", time_taken);
+	mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+	/*
+	//Single Thread
 	clock_t start, end;
 	start = clock();
 	//Update Mandelbrot and store arraydata in Mandel_Data
 	mandel_update(man_i, man_d);
-	printf("Update Success\n");
 	mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
-
-	printf("%p", pixel_buffer);
 	end = clock();
-	double time_taken = ((double) (end - start));
-	//free(bin_cpy->sum);
-	//free(bin_cpy->product);
-	printf("Time Taken: %lf \n", time_taken);
+	double time_taken = ((double) ((end - start) / CLOCKS_PER_SEC));
+	*/
 	printf("Set Generated!\n");
-
+	
 	//*Main Loop
 	int ended = 0;
 	SDL_Event event; //Declare Event
@@ -122,26 +161,32 @@ int main(int argc, char *args[]){
 				}
 				if(event.key.keysym.sym == SDLK_1){
 					color_i->red_bias += 1;
+					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_2){
 					color_i->green_bias += 1;
+					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_3){
 					color_i->blue_bias += 1;
+					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_q){
 					color_i->red_bias -= 1;
+					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_w){
 					color_i->green_bias -= 1;
+					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_e){
 					color_i->blue_bias -= 1;
+					print_Color_Info(color_i);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 				}
 				if(event.key.keysym.sym == SDLK_EQUALS){
@@ -157,27 +202,31 @@ int main(int argc, char *args[]){
 
 				}
 				if(event.key.keysym.sym == SDLK_r){
-					color_i->red_bias = 5;
-					color_i->green_bias = 5;
-					color_i->blue_bias = 5;
+					color_i->red_bias = 25;
+					color_i->green_bias = 25;
+					color_i->blue_bias = 25;
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}
 				if(event.key.keysym.sym == SDLK_UP){
-					man_i->num_iterations += 100;
-					mandel_update(man_i, man_d);
-					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+					man_i->num_iterations += 50;
+					print_Mandel_Input(man_i);
+					
 				}
 				if(event.key.keysym.sym == SDLK_DOWN){
-					if(man_i->num_iterations > 100)
-						man_i->num_iterations -= 100;
-					mandel_update(man_i, man_d);
-					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+					if(man_i->num_iterations > 50)
+						man_i->num_iterations -= 50;
+					print_Mandel_Input(man_i);
 				}
 				if(event.key.keysym.sym == SDLK_p){
 					print_Color_Info(color_i);
 					print_Mandel_Input(man_i);
 					print_cmd(man_i, color_i);
+				}
+				if(event.key.keysym.sym == SDLK_RETURN){
+					mandel_update(man_i, man_d);
+					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
+					printf("Refreshed!\n");					
 				}
 				break;
 			case SDL_QUIT:

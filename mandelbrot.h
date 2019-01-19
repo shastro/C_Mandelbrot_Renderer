@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <pthread.h>
+#define N_THREADS 2
 struct Complex_n{
 
 	double rc; //Real Component
@@ -36,6 +39,15 @@ struct Mandel_Input{
 	double yoff;
 	double zoomfac;
 
+};
+
+struct Thread_Args{
+
+	struct Mandel_Input *man_i;
+	struct Mandel_Data *man_d;
+	uint32_t *pixel_buffer;
+	int len;
+	int thread_id;
 };
 
 struct Color_Info{
@@ -75,3 +87,7 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias);
 void print_Color_Info(struct Color_Info *color_i);
 void print_Mandel_Input(struct Mandel_Input *man_i);
 void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i);
+
+
+//Multi-Threaded
+void *threaded_mandel_update(void *th_args);
