@@ -275,3 +275,9 @@ void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i)
 	printf("\"./mandl %0.17g %d %0.17g %0.17g %d %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
 										color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
 }
+
+void print_help(void){
+
+	printf("Welcome");
+
+}

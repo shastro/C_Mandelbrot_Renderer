@@ -260,7 +260,7 @@ int main(int argc, char *args[]){
 				if(event.key.keysym.sym == SDLK_s){
 
 					//Aquiring Pixel Data
-					SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_PIXELFORMAT_RGBA8888);
+					SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, SDL_PIXELFORMAT_RGBA8888);
 					SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_RGBA8888, surface->pixels, surface->pitch);
 					
 					//Getting Number for Filenames
