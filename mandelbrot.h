@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
-#define N_THREADS 6
+#define N_THREADS 8
 struct Complex_n{
 
 	double rc; //Real Component
@@ -90,8 +90,8 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias, int
 void print_Color_Info(struct Color_Info *color_i);
 void print_Mandel_Input(struct Mandel_Input *man_i);
 void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i);
-
+void print_help(void);
 
 //Multi-Threaded
 void *threaded_mandel_update(void *th_args);
-void update_mandel_threads(struct Thread_Args *th_args_a, pthread_t *threads);
+void update_mandel_create_threads(struct Thread_Args *th_args_a, pthread_t *threads);

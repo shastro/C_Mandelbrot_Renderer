@@ -74,8 +74,9 @@ struct Complex_n_bin *set_iterate(struct Complex_n *a, int iterations, struct Co
 	complex_setval(bin->sum, 0, 0);
 	complex_setval(bin->product, 0, 0); 
 
-	for(i; i < iterations; i++){
+	for(; i < iterations; i++){
 		z = complex_add(complex_square(z, bin), a, bin);
+		//z = complex_add(complex_square(complex_square(z, bin), bin), a, bin); //Other Func
 		if((z->rc * z->rc) + (z->ic * z->ic) > 4){
 			bin->in_set = 0;
 			bin->i = i;
@@ -129,7 +130,7 @@ void *threaded_mandel_update(void *th_args){
 	//Simplifiying the naming
 	int thread_id = ((struct Thread_Args*)th_args)->thread_id;
 	int width     = ((struct Thread_Args*)th_args)->man_i->width;
-	int height    = ((struct Thread_Args*)th_args)->man_i->height;
+	//int height    = ((struct Thread_Args*)th_args)->man_i->height;
 	int len       = ((struct Thread_Args*)th_args)->len;
 
 	struct Mandel_Data  *man_d  = ((struct Thread_Args*)th_args)->man_d;
@@ -167,24 +168,24 @@ void *threaded_mandel_update(void *th_args){
 			(man_d->complex_bin_array)[i] = *bin_cpy;
 
 	}
-	printf("Thread %d Successful!", thread_id);
+	printf("Thread %d Successful!\n", thread_id);
 
 	
 
 }
 
-void update_mandel_threads(struct Thread_Args *th_args_a, pthread_t *threads)
+void update_mandel_create_threads(struct Thread_Args *th_args_a, pthread_t *threads)
 {
 	for(int i=0; i< N_THREADS; i++){
 		(th_args_a[i]).thread_id = i;
-		printf("\n\nSpawning Thread%d\n\n", i);
+		printf("\n\nSpawning Thread%d", i);
 		pthread_create(&threads[i], NULL, threaded_mandel_update, (void*)&th_args_a[i]);
 
 	}
 	//Wait for Threads to Complete
 	for(int i=0; i< N_THREADS; i++){
 		pthread_join(threads[i], NULL);
-		printf("Thread %d finished!\n\n", i);
+		printf("Thread %d finished!\n", i);
 	}
 }
 
@@ -247,6 +248,9 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias, int
 	return (red + green + blue + alpha);
 }
 
+
+
+
 //Prints Color_Info Struct
 void print_Color_Info(struct Color_Info *color_i)
 {
@@ -268,6 +272,6 @@ void print_Mandel_Input(struct Mandel_Input *man_i)
 //Prints Executable command to console
 void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i)
 {
-	printf("\"./mandl %0.17g %d %lf %lf %d %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
+	printf("\"./mandl %0.17g %d %0.17g %0.17g %d %d %d %d\"\n\n\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff, 
 										color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
 }

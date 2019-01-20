@@ -6,13 +6,11 @@
 
 /* MandelBrot Set Plotter, Skyler Hughes
 
-	@bug
-		Strange error, caused pixelated rendering and a program failure
-		Possibly related to fast inputs and multithreading
-
 	@todo
 		Implement even better color control
 		Implement custom movement optimzation algorithm
+		Implement 2-2 loop detection and skiping optimization
+		Implement dispersion
 		Better command line arguments
 		Check Memeory leaks and add more free()s
 		Document Code
@@ -53,8 +51,8 @@ int main(int argc, char *args[]){
 
 	//Default Arg Values
 	double zoomfac = 2;
-	double xoff = 0; // X offset
-	double yoff = 0; // Y offset
+	long double xoff = 0; // X offset
+	long double yoff = 0; // Y offset
 	int num_iterations = 500;
 	int red_bias = 25;
 	int green_bias = 25;
@@ -67,9 +65,9 @@ int main(int argc, char *args[]){
 	if(args[2])
 		sscanf(args[2], "%d", &num_iterations);
 	if(args[3])
-		sscanf(args[3],"%lf", &xoff);
+		sscanf(args[3],"%Lf", &xoff);
 	if(args[4])
-		sscanf(args[4], "%lf", &yoff);
+		sscanf(args[4], "%Lf", &yoff);
 	if(args[5])
 		sscanf(args[5], "%d", &red_bias);
 	if(args[6])
@@ -118,7 +116,7 @@ int main(int argc, char *args[]){
 	
 	clock_gettime(CLOCK_REALTIME, &start);
 	//mandel_update(man_i, man_d); //Single Thread
-	update_mandel_threads(th_args_a, threads); //Multi-Thread
+	update_mandel_create_threads(th_args_a, threads); //Multi-Thread
 
 	clock_gettime(CLOCK_REALTIME, &end);
 
@@ -157,7 +155,7 @@ int main(int argc, char *args[]){
 					case SDL_BUTTON_LEFT:
 						man_i->xoff = l_map(event.button.x, 0.0f, SCREEN_WIDTH, -1 * man_i -> zoomfac + man_i->xoff, 1 * man_i -> zoomfac + man_i->xoff);
 						man_i->yoff = l_map(event.button.y, 0.0f, SCREEN_HEIGHT,-1 * man_i -> zoomfac + man_i->yoff, 1 * man_i -> zoomfac + man_i->yoff);
-						update_mandel_threads(th_args_a, threads);
+						update_mandel_create_threads(th_args_a, threads);
 						mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 						break;
 				}
@@ -220,14 +218,14 @@ int main(int argc, char *args[]){
 				if(event.key.keysym.sym == SDLK_EQUALS){
 					man_i->zoomfac *= 0.1;
 					//mandel_update(man_i, man_d);
-					update_mandel_threads(th_args_a, threads);
+					update_mandel_create_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}
 				if(event.key.keysym.sym == SDLK_MINUS){
 					man_i->zoomfac *= 10;
 					//mandel_update(man_i, man_d);
-					update_mandel_threads(th_args_a, threads);
+					update_mandel_create_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 
 				}
@@ -302,7 +300,7 @@ int main(int argc, char *args[]){
 					fprintf(metadata, "xoff: %lf\n", man_i->xoff);
 					fprintf(metadata, "yoff: %lf\n", man_i->yoff);
 					fprintf(metadata, "zoomfac: %lf\n", man_i->zoomfac);	
-					fprintf(metadata, "./mandl %0.17g %d %lf %lf %d %d %d %d\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff,
+					fprintf(metadata, "./mandl %0.17g %d %0.17g %0.17g %d %d %d %d\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff,
 											color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
  
 
@@ -314,7 +312,7 @@ int main(int argc, char *args[]){
 					cool_commands = fopen("cool_commands", "a");
 					if(cool_commands){
 
-						fprintf(cool_commands, "./mandl %0.17g %d %lf %lf %d %d %d %d\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff,
+						fprintf(cool_commands, "./mandl %0.17g %d %0.17g %0.17g %d %d %d %d\n", man_i->zoomfac, man_i->num_iterations, man_i->xoff, man_i->yoff,
 								color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
  						
  						fclose(cool_commands);
@@ -324,12 +322,18 @@ int main(int argc, char *args[]){
 
 
 				if(event.key.keysym.sym == SDLK_RETURN){
-					update_mandel_threads(th_args_a, threads);
+					update_mandel_create_threads(th_args_a, threads);
 					mandel_draw(pixel_buffer, man_d->complex_bin_array, color_i, man_i);
 					printf("Refreshed!\n");					
 				}
 
 				break;
+
+				if(event.key.keysym.sym == SDLK_h){
+					print_help();
+				}
+				break;
+
 			case SDL_QUIT:
 				ended = 1;
 			}
