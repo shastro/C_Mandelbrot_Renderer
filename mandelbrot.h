@@ -90,7 +90,7 @@ uint32_t color_calc(double val, int red_bias, int green_bias, int blue_bias, int
 void print_Color_Info(struct Color_Info *color_i);
 void print_Mandel_Input(struct Mandel_Input *man_i);
 void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i);
-void print_help(void);
+void print_help();
 
 //Multi-Threaded
 void *threaded_mandel_update(void *th_args);

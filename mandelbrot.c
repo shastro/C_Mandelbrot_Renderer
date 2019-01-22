@@ -176,6 +176,7 @@ void *threaded_mandel_update(void *th_args){
 
 void update_mandel_create_threads(struct Thread_Args *th_args_a, pthread_t *threads)
 {
+
 	for(int i=0; i< N_THREADS; i++){
 		(th_args_a[i]).thread_id = i;
 		printf("\n\nSpawning Thread%d", i);
@@ -276,8 +277,24 @@ void print_cmd(struct Mandel_Input *man_i, struct Color_Info *color_i)
 										color_i->red_bias, color_i->green_bias, color_i->blue_bias, color_i->color_coef);
 }
 
-void print_help(void){
+void print_help(){
 
-	printf("Welcome");
+	printf("User Information\n\n");
+	printf("Commands: \n");
+	printf("\t1, 2, 3 :Increase (Red, Green, Blue) Channel Color Bias Respectively\n");
+	printf("\tq, w, e :Decrease (Red, Green, Blue) Channel Color Bias Respectively\n");
+	printf("\t4 :Increase Color Coefficient, has the effect of changing the rate of color change\n");
+	printf("\tr :Decrease Color Coefficient\n");
+	printf("\tt :Reset Color Biases to default values\n");
+	printf("\t= :Zoom in by a factor of 10");
+	printf("\t- :Zoom out by a factor of 10");
+	printf("\tENTER :Refresh, re-renders and calculates set with (possibly) updated parameters\n");
+	printf("\tUP_ARROW :Increase number of iterations by 50, does not automatically re-calculate, user ENTER to refresh\n");
+	printf("\tDOWN_ARROW :Decrease number of iterations by 50, does not automatically update\n");
+	printf("\tp :Print Statistical information to console, including location, zoomfac.etc\n");
+	printf("\ts :Saves a screenshot as bmp in ./images/ folder, also saves location,color,zoom and executable command data as a .met file\n\t    also saves an executable command with generated parameters to the end of the file \"cool_commands\"\n");
+	printf("\tESCAPE : Quits application\n");
+	printf("\th :Prints this help message\n");
+	
 
 }

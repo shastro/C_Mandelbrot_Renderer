@@ -6,11 +6,20 @@
 
 /* MandelBrot Set Plotter, Skyler Hughes
 
+	@bug
+		Saved images have alpha of 0 where color should be pure black, 
+		occurs on kbuntu for unkown reasons
+
 	@todo
+		Help and Welcome Message!
+
 		Implement even better color control
 		Implement custom movement optimzation algorithm
 		Implement 2-2 loop detection and skiping optimization
 		Implement dispersion
+
+		Update Readme with installation and other information
+
 		Better command line arguments
 		Check Memeory leaks and add more free()s
 		Document Code
@@ -138,7 +147,8 @@ int main(int argc, char *args[]){
 	double time_taken = ((double) ((end - start) / CLOCKS_PER_SEC));
 	*/
 	printf("Set Generated!\n");
-	
+	printf("Welcome!\n");
+	printf("Press h for keybinds and help\n");
 	//*Main Loop
 	int ended = 0;
 	SDL_Event event; //Declare Event
@@ -327,11 +337,11 @@ int main(int argc, char *args[]){
 					printf("Refreshed!\n");					
 				}
 
-				break;
-
 				if(event.key.keysym.sym == SDLK_h){
 					print_help();
+
 				}
+
 				break;
 
 			case SDL_QUIT:
