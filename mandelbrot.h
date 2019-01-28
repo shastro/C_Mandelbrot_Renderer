@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #define N_THREADS 8
-struct Complex_n{
+struct Complex_n {
 
 	double rc; //Real Component
 	double ic; //Imaginary Component
@@ -13,7 +13,7 @@ struct Complex_n{
 //Used to store the iterations it took for a given complex number to either be included or not included in the mandelbrot set
 //As well as some pointers to sum, product, and z complex numbers that need to be passed by reference to the various funcs
 //in mandelbrot.c
-struct Complex_n_bin{
+struct Complex_n_bin {
 
 	struct Complex_n *sum;
 	struct Complex_n *product;
@@ -23,7 +23,7 @@ struct Complex_n_bin{
 };
 
 //Struct to hold all mandelbrot data for entire set
-struct Mandel_Data{
+struct Mandel_Data {
 
 	struct Complex_n_bin *complex_bin_array;
 	struct Complex_n *complex_array;
@@ -31,7 +31,7 @@ struct Mandel_Data{
 };
 
 //Holds input data for mandel_update()
-struct Mandel_Input{
+struct Mandel_Input {
 	int width;
 	int height;
 	int num_iterations;
@@ -42,7 +42,7 @@ struct Mandel_Input{
 };
 
 //Holds information that must be passed to each thread
-struct Thread_Args{
+struct Thread_Args {
 
 	struct Mandel_Input *man_i;
 	struct Mandel_Data *man_d;
@@ -52,7 +52,7 @@ struct Thread_Args{
 };
 
 //Color information for rendering
-struct Color_Info{
+struct Color_Info {
 
 	int red_bias;
 	int green_bias;
@@ -68,7 +68,7 @@ struct Color_Info{
 double l_map(double x, double input_start, double input_end, double output_start, double output_end);
 int cindex(int x, int y, int width);
 
-//Complex Num 
+//Complex Num
 void complex_setval(struct Complex_n *a, double rc, double ic);
 struct Complex_n *complex_square(struct Complex_n *a, struct Complex_n_bin *bin);
 struct Complex_n *complex_add(struct Complex_n *a, struct Complex_n *b, struct Complex_n_bin *bin);
